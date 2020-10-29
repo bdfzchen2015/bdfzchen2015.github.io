@@ -23,20 +23,23 @@
     var CONFIG = {"hostname":"bdfzchen2015.github.io","root":"/","scheme":"Pisces","version":"8.0.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}};
   </script>
 
-  <meta name="description" content="Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub. Quick">
+  <meta name="description" content="IntroductionRay tracing is the main implementation method of offline rendering. It generates a real picture by simulating the path of light propagation. However, Ray tracing is very inefficient due to">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Hello World">
-<meta property="og:url" content="https://bdfzchen2015.github.io/2020/09/18/hello-world/index.html">
+<meta property="og:title" content="Intersection Detection Acceleration Structure">
+<meta property="og:url" content="https://bdfzchen2015.github.io/2020/09/18/IntersectionTest/index.html">
 <meta property="og:site_name" content="Xujie Chen&#39;s Blog">
-<meta property="og:description" content="Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub. Quick">
+<meta property="og:description" content="IntroductionRay tracing is the main implementation method of offline rendering. It generates a real picture by simulating the path of light propagation. However, Ray tracing is very inefficient due to">
 <meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2020-09-18T12:51:23.913Z">
-<meta property="article:modified_time" content="2020-09-18T12:51:23.913Z">
+<meta property="og:image" content="https://bdfzchen2015.github.io/uploads/scene1.png">
+<meta property="og:image" content="https://bdfzchen2015.github.io/uploads/locality.png">
+<meta property="article:published_time" content="2020-09-18T12:53:36.000Z">
+<meta property="article:modified_time" content="2020-10-04T00:53:40.532Z">
 <meta property="article:author" content="Xujie Chen">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://bdfzchen2015.github.io/uploads/scene1.png">
 
 
-<link rel="canonical" href="https://bdfzchen2015.github.io/2020/09/18/hello-world/">
+<link rel="canonical" href="https://bdfzchen2015.github.io/2020/09/18/IntersectionTest/">
 
 
 <script class="page-configurations">
@@ -49,7 +52,7 @@
   };
 </script>
 
-  <title>Hello World | Xujie Chen's Blog</title>
+  <title>Intersection Detection Acceleration Structure | Xujie Chen's Blog</title>
   
 
 
@@ -149,7 +152,7 @@
 
       <!--noindex-->
       <section class="post-toc-wrap sidebar-panel">
-          <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Quick-Start"><span class="nav-number">1.</span> <span class="nav-text">Quick Start</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Create-a-new-post"><span class="nav-number">1.1.</span> <span class="nav-text">Create a new post</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Run-server"><span class="nav-number">1.2.</span> <span class="nav-text">Run server</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Generate-static-files"><span class="nav-number">1.3.</span> <span class="nav-text">Generate static files</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Deploy-to-remote-sites"><span class="nav-number">1.4.</span> <span class="nav-text">Deploy to remote sites</span></a></li></ol></li></ol></div>
+          <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Introduction"><span class="nav-number">1.</span> <span class="nav-text">Introduction</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Background-Information"><span class="nav-number">2.</span> <span class="nav-text">Background Information</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Input-and-Output"><span class="nav-number">3.</span> <span class="nav-text">Input and Output</span></a></li></ol></div>
       </section>
       <!--/noindex-->
 
@@ -199,7 +202,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://bdfzchen2015.github.io/2020/09/18/hello-world/">
+    <link itemprop="mainEntityOfPage" href="https://bdfzchen2015.github.io/2020/09/18/IntersectionTest/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -215,7 +218,7 @@
     
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          Hello World
+          Intersection Detection Acceleration Structure
         </h1>
 
         <div class="post-meta-container">
@@ -226,8 +229,15 @@
       </span>
       <span class="post-meta-item-text">Posted on</span>
 
-      <time title="Created: 2020-09-18 08:51:23" itemprop="dateCreated datePublished" datetime="2020-09-18T08:51:23-04:00">2020-09-18</time>
+      <time title="Created: 2020-09-18 08:53:36" itemprop="dateCreated datePublished" datetime="2020-09-18T08:53:36-04:00">2020-09-18</time>
     </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">Edited on</span>
+        <time title="Modified: 2020-10-03 20:53:40" itemprop="dateModified" datetime="2020-10-03T20:53:40-04:00">2020-10-03</time>
+      </span>
 
   
 </div>
@@ -239,19 +249,17 @@
     
     
     <div class="post-body" itemprop="articleBody">
-        <p>Welcome to <a target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a target="_blank" rel="noopener" href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a target="_blank" rel="noopener" href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a target="_blank" rel="noopener" href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">&quot;My New Post&quot;</span></span><br></pre></td></tr></table></figure>
+        <h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>Ray tracing is the main implementation method of offline rendering. It generates a real picture by simulating the path of light propagation. However, Ray tracing is very inefficient due to we need to cast thousands of rays, and test their intersections with scene objects. To reduce the rendering time, we need to find some superior spatial acceleration structures. This project will explore some of the popular acceleration data structures, and implement a ray tracing scene for performance comparison. In addition, this project will also compare their applicable scenarios, advantages, disadvantages, and possible optimization solutions.</p>
+<p><img src="/uploads/scene1.png" alt="A ray tracing scene"></p>
+<a id="more"></a>
 
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/writing.html">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/server.html">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/generating.html">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
+<h1 id="Background-Information"><a href="#Background-Information" class="headerlink" title="Background Information"></a>Background Information</h1><p>The naive approach to this problem would be for each ray, do a collision test with every object. This would result in $O(n)$ time for each ray. When a lot of rays are emitted, the rendering efficiency will drop sharply.<br>There are many ways to reduce this complexity, but this project will focus on the method of computation geometry. An efficient ray tracing implementation needs to rely on an acceleration structure to take advantage of the locality of objects. The main principle behind these structures is to safely reject or ignore whole groups of primitives, which cannot be intersected by a given ray.<br><img src="/uploads/locality.png" alt="Locality"><br>Generally, there are two types of acceleration structure: grid-based and tree-based. </p>
+<ul>
+<li><strong>Grid-Based</strong> structure refers to dividing the space into grids of fixed size, and then do intersection detections based on which grid the objects and rays are located.</li>
+<li><strong>Tree-Based</strong> structure instead utilize the hierarchical structure of the objects, determine which object to collide by subdividing from outside to inside, from top to bottom. Among the most representative data structures are KD trees, bounding volume hierarchies and octrees.</li>
+</ul>
+<p>This project will briefly introduce the grid-based method, and the main focus will be on BVH and KD trees. They are currently the best acceleration structure in collision detection.</p>
+<h1 id="Input-and-Output"><a href="#Input-and-Output" class="headerlink" title="Input and Output"></a>Input and Output</h1><p>I will prepare several different 3D ray tracing scenes, and test their respective rendering time. When performing ray tracing, I intended to use a recursive ray tracing method. When the ray hits the surface of an object, it will reflect according to the properties of the surface recursively, but I limit the maximum number of times the ray bounces back and forth to 5. I did this on purpose to allow light to hit the object from various angles, not just from the perspective of the viewport.</p>
 
     </div>
 
@@ -265,11 +273,11 @@
 
           <div class="post-nav">
             <div class="post-nav-item">
+                <a href="/2020/09/18/hello-world/" rel="prev" title="Hello World">
+                  <i class="fa fa-chevron-left"></i> Hello World
+                </a>
             </div>
             <div class="post-nav-item">
-                <a href="/2020/09/18/IntersectionTest/" rel="next" title="Intersection Detection Acceleration Structure">
-                  Intersection Detection Acceleration Structure <i class="fa fa-chevron-right"></i>
-                </a>
             </div>
           </div>
     </footer>
