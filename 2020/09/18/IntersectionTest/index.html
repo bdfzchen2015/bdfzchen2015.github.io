@@ -23,12 +23,12 @@
     var CONFIG = {"hostname":"bdfzchen2015.github.io","root":"/","scheme":"Pisces","version":"8.0.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}};
   </script>
 
-  <meta name="description" content="IntroductionRay tracing is the main implementation method of offline rendering. It generates a real picture by simulating the path of light propagation. However, Ray tracing is very inefficient due to">
+  <meta name="description" content="IntroductionRay tracing is the main implementation method of offline rendering. It generates a realistic picture by simulating the path of light transmission. However, Ray tracing is very inefficient">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Intersection Detection Acceleration Structure">
 <meta property="og:url" content="https://bdfzchen2015.github.io/2020/09/18/IntersectionTest/index.html">
 <meta property="og:site_name" content="Xujie Chen&#39;s Blog">
-<meta property="og:description" content="IntroductionRay tracing is the main implementation method of offline rendering. It generates a real picture by simulating the path of light propagation. However, Ray tracing is very inefficient due to">
+<meta property="og:description" content="IntroductionRay tracing is the main implementation method of offline rendering. It generates a realistic picture by simulating the path of light transmission. However, Ray tracing is very inefficient">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://bdfzchen2015.github.io/images/raytracing.png">
 <meta property="og:image" content="https://bdfzchen2015.github.io/images/bunny.png">
@@ -37,6 +37,8 @@
 <meta property="og:image" content="https://bdfzchen2015.github.io/images/Octree.png">
 <meta property="og:image" content="https://bdfzchen2015.github.io/images/KDTree.png">
 <meta property="og:image" content="https://bdfzchen2015.github.io/images/Hybrid.png">
+<meta property="og:image" content="https://bdfzchen2015.github.io/images/ExpTriangles1.png">
+<meta property="og:image" content="https://bdfzchen2015.github.io/images/ExpTriangles.png">
 <meta property="og:image" content="https://bdfzchen2015.github.io/images/Partition.png">
 <meta property="og:image" content="https://bdfzchen2015.github.io/images/Partition1.png">
 <meta property="og:image" content="https://bdfzchen2015.github.io/images/BuildTime.png">
@@ -47,8 +49,19 @@
 <meta property="og:image" content="https://bdfzchen2015.github.io/images/KD_HMAP.png">
 <meta property="og:image" content="https://bdfzchen2015.github.io/images/Hybrid_HMAP.png">
 <meta property="og:image" content="https://bdfzchen2015.github.io/images/BVHSAHTest.png">
+<meta property="og:image" content="https://bdfzchen2015.github.io/images/Complex_Running.png">
+<meta property="og:image" content="https://bdfzchen2015.github.io/images/Complex_Step.png">
+<meta property="og:image" content="https://bdfzchen2015.github.io/images/Complex_Intersection.png">
+<meta property="og:image" content="https://bdfzchen2015.github.io/images/BVH_HMAP_INT.png">
+<meta property="og:image" content="https://bdfzchen2015.github.io/images/BVHSAH_HMAP_INT.png">
+<meta property="og:image" content="https://bdfzchen2015.github.io/images/Complex_Memory.png">
+<meta property="og:image" content="https://bdfzchen2015.github.io/images/Complex_Memory_R.png">
+<meta property="og:image" content="https://bdfzchen2015.github.io/images/KD_HMAP_ROOM.png">
+<meta property="og:image" content="https://bdfzchen2015.github.io/images/Hybrid_HMAP_ROOM.png">
+<meta property="og:image" content="https://bdfzchen2015.github.io/images/KDKiller.png">
+<meta property="og:image" content="https://bdfzchen2015.github.io/images/KDKiller2.png">
 <meta property="article:published_time" content="2020-09-18T12:53:36.000Z">
-<meta property="article:modified_time" content="2020-11-08T02:36:23.701Z">
+<meta property="article:modified_time" content="2020-12-08T15:02:25.888Z">
 <meta property="article:author" content="Xujie Chen">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://bdfzchen2015.github.io/images/raytracing.png">
@@ -167,7 +180,7 @@
 
       <!--noindex-->
       <section class="post-toc-wrap sidebar-panel">
-          <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Introduction"><span class="nav-number">1.</span> <span class="nav-text">Introduction</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Background-Information"><span class="nav-number">2.</span> <span class="nav-text">Background Information</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Input-and-Output"><span class="nav-number">3.</span> <span class="nav-text">Input and Output</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Needs-for-the-problem-domain"><span class="nav-number">4.</span> <span class="nav-text">Needs for the problem domain</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Data-Strucures"><span class="nav-number">5.</span> <span class="nav-text">Data Strucures</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Surface-Area-Huristic"><span class="nav-number">6.</span> <span class="nav-text">Surface Area Huristic</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Implementation-and-Analysis"><span class="nav-number">7.</span> <span class="nav-text">Implementation and Analysis</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Preprocessing-Construction"><span class="nav-number">7.1.</span> <span class="nav-text">Preprocessing (Construction)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Storage-Cost"><span class="nav-number">7.2.</span> <span class="nav-text">Storage Cost</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Threshold"><span class="nav-number">7.3.</span> <span class="nav-text">Threshold</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Performance-Test-Result"><span class="nav-number">8.</span> <span class="nav-text">Performance Test Result</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Subdivision-Test"><span class="nav-number">8.1.</span> <span class="nav-text">Subdivision Test</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Heatmap-Test"><span class="nav-number">8.1.1.</span> <span class="nav-text">Heatmap Test</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Performance-Test"><span class="nav-number">8.1.2.</span> <span class="nav-text">Performance Test</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Complex-Scene-Test"><span class="nav-number">8.2.</span> <span class="nav-text">Complex Scene Test</span></a></li></ol></li></ol></div>
+          <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Introduction"><span class="nav-number">1.</span> <span class="nav-text">Introduction</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Background-Information"><span class="nav-number">2.</span> <span class="nav-text">Background Information</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Input-and-Output"><span class="nav-number">3.</span> <span class="nav-text">Input and Output</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Needs-for-the-problem-domain"><span class="nav-number">4.</span> <span class="nav-text">Needs for the problem domain</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Data-Strucures"><span class="nav-number">5.</span> <span class="nav-text">Data Strucures</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Surface-Area-Heuristic"><span class="nav-number">6.</span> <span class="nav-text">Surface Area Heuristic</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Implementation-and-Analysis"><span class="nav-number">7.</span> <span class="nav-text">Implementation and Analysis</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Preprocessing-Construction"><span class="nav-number">7.1.</span> <span class="nav-text">Preprocessing (Construction)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Storage-Cost"><span class="nav-number">7.2.</span> <span class="nav-text">Storage Cost</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Threshold"><span class="nav-number">7.3.</span> <span class="nav-text">Threshold</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Performance-Test-Result"><span class="nav-number">8.</span> <span class="nav-text">Performance Test Result</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Subdivision-Test"><span class="nav-number">8.1.</span> <span class="nav-text">Subdivision Test</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Heatmap"><span class="nav-number">8.1.1.</span> <span class="nav-text">Heatmap</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Performance-Test"><span class="nav-number">8.1.2.</span> <span class="nav-text">Performance Test</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Complex-Scene-Test"><span class="nav-number">8.2.</span> <span class="nav-text">Complex Scene Test</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Conclusion"><span class="nav-number">9.</span> <span class="nav-text">Conclusion</span></a></li></ol></div>
       </section>
       <!--/noindex-->
 
@@ -251,7 +264,7 @@
           <i class="far fa-calendar-check"></i>
         </span>
         <span class="post-meta-item-text">Edited on</span>
-        <time title="Modified: 2020-11-07 21:36:23" itemprop="dateModified" datetime="2020-11-07T21:36:23-05:00">2020-11-07</time>
+        <time title="Modified: 2020-12-08 10:02:25" itemprop="dateModified" datetime="2020-12-08T10:02:25-05:00">2020-12-08</time>
       </span>
 
   
@@ -264,23 +277,24 @@
     
     
     <div class="post-body" itemprop="articleBody">
-        <h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>Ray tracing is the main implementation method of offline rendering. It generates a real picture by simulating the path of light propagation. However, Ray tracing is very inefficient due to we need to cast thousands of rays, and test their intersections with scene objects. To reduce the rendering time, we need to find some superior spatial acceleration structures. This project will explore some of the popular acceleration data structures, and implement a ray tracing scene for performance comparison. In addition, this project will also compare their applicable scenarios, advantages, disadvantages, and possible optimization solutions.</p>
+        <h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>Ray tracing is the main implementation method of offline rendering. It generates a realistic picture by simulating the path of light transmission. However, Ray tracing is very inefficient due to the need to cast millions of rays, and test their intersections with also millions of scene objects. To reduce the rendering time, one of the method is to find some superior spatial acceleration structures to speed up the intersetion detection process. This project will explore some of the popular acceleration data structures, and implement a ray tracing scene for performance comparison. In addition, this project will also compare their applicable scenarios, advantages, disadvantages, and possible optimization solutions.</p>
 <img src="/images/raytracing.png" width="50%" height="50%" />
 <a id="more"></a>
 
-<h1 id="Background-Information"><a href="#Background-Information" class="headerlink" title="Background Information"></a>Background Information</h1><p>The naive approach to this problem would be for each ray, do a collision test with every object. This would result in $O(n)$ time for each ray. When a lot of rays are emitted, the rendering efficiency will drop sharply.<br>There are many ways to reduce this complexity, but this project will focus on the method of computation geometry. An efficient ray tracing implementation needs to rely on an acceleration structure to take advantage of the locality of objects. The main principle behind these structures is to safely reject or ignore whole groups of primitives, which is impossible to be intersected by a given ray.</p>
-<p>Generally, there are two types of acceleration structure: Space Partition Structure and Object Subdivision Structure. </p>
+<h1 id="Background-Information"><a href="#Background-Information" class="headerlink" title="Background Information"></a>Background Information</h1><p>The naive approach to this problem would be: for each ray, do a collision test with every object. This would result in taken $O(n)$ time for each ray. When a lot of rays are emitted, the rendering efficiency will drop sharply.<br>There are many ways to reduce this complexity, but this project will focus on the method of computation geometry. An efficient ray tracing implementation needs to rely on an acceleration structure to take advantage of the locality of objects. The main principle behind these structures is to safely reject or ignore whole groups of primitives, which is impossible to be intersected by a given ray.</p>
+<p>Generally, there are 3 types of acceleration structure: space partition structures, object partition structures and hybrid structures. </p>
 <ul>
 <li><strong>Space Partition Structure</strong>: refers to dividing the space (usually recursively) into subspaces, and then do intersection detections based on which subspace the objects and rays are located. Among the most representative data structure are Octree and KD-Tree.</li>
-<li><strong>Object Subdivision Structure</strong>: instead utilize the hierarchical structure of the objects, determine which object to collide by subdividing from outside to inside, from top to bottom. Among the most representative data structure is the Bounding Volume Hierarchies.</li>
+<li><strong>Object Subdivision Structure</strong>: instead utilize the hierarchical structure of the objects, determine which object to collide by subdividing from outside to inside, from top to bottom. Among the most representative data structure is the Bounding Volume Hierarchies (BVH).</li>
+<li><strong>Hybrid</strong>: Mixture of KD-Tree and BVH, using KD-Tree as the first level division and BVH for the second level.</li>
 </ul>
-<p>This project will focus on comparing 3 different acceleration structures: BVH, Octree, KD-Tree.</p>
-<h1 id="Input-and-Output"><a href="#Input-and-Output" class="headerlink" title="Input and Output"></a>Input and Output</h1><p>I will prepare several different 3D ray tracing scenes, and test their respective rendering time. Here are some example scenes.<br><img src="/images/bunny.png" width="50%" height="50%" /><br><img src="/images/teapot.png" width="50%" height="50%" /><br>The number of triangles for each scene are from 4K to 870K.</p>
+<p>This project will focus on comparing 4 different acceleration structures: BVH, Octree, KD-Tree, Hybrid tree.</p>
+<h1 id="Input-and-Output"><a href="#Input-and-Output" class="headerlink" title="Input and Output"></a>Input and Output</h1><p>I will prepare several different 3D ray tracing scenes, and test their respective rendering time. Here are some example scenes.<br><img src="/images/bunny.png" width="50%" height="50%" /><br><img src="/images/teapot.png" width="50%" height="50%" /><br>The number of triangles for each scene are from 4K to 1.3M.</p>
 <p>I will be analyzing the performance of each algorithm in the following way:</p>
 <ul>
 <li><strong>Preprocessing Time</strong>: The time complexity of building the subdivision structure</li>
 <li><strong>Storage Cost</strong>: The space complextity of such structure</li>
-<li><strong>Query Time</strong>: The expected time complexity for a ray to query its intersection</li>
+<li><strong>Query Time</strong>: The expected time for a ray to query its intersection</li>
 </ul>
 <p>Query Time is the one that I care about the most, so I designed several metrics to measure its query performance:</p>
 <ul>
@@ -300,15 +314,16 @@
 <li><p><strong>KD-Tree</strong>: Similiar to Octree, but instead of 8 children, KD-Tree often divides a space into 2 axis aligned subspaces. </p>
 <img src="/images/KDTree.png" width="60%" />
 </li>
-<li><p><strong>Hybrid</strong>: Mixture of KD-Tree and BVH, using KD-Tree as the first level division and BVH for the second level.</p>
+<li><p><strong>Hybrid</strong>: Mixture of KD-Tree and BVH, uses KD-Tree as the first level division and BVH for the second level.</p>
 </li>
 <li><img src="/images/Hybrid.png" width="60%" />
 
 </li>
 </ul>
-<h1 id="Surface-Area-Huristic"><a href="#Surface-Area-Huristic" class="headerlink" title="Surface Area Huristic"></a>Surface Area Huristic</h1><p>Surface Area Heuristic (SAH) is a heuristic algorithm which provides a well-grounded cost model for answering questions like “which of a number of partitions of primitives will lead to a better BVH for ray–primitive intersection tests?,” or “which of a number of possible positions to split space in a spatial subdivision scheme will lead to a better acceleration structure?”</p>
-<p>The difference between good and bad partition can be significant, especially in spatial subdivision data structures.<br>Here is a good partition:<br><img src="/images/Partition.png" width="60%" /><br>Here is an example of a bad partition:<br><img src="/images/Partition1.png" width="60%" /></p>
-<p>The computation for thi cost model is simple. If we brute force check every triangle in the set $S$, the cost is:<br>$$<br>\sum_{i=1}^{n} t_{insec}<br>$$<br>If we split the set into two subsets $A, B$, then the cost turned into:<br>$$<br>t_{trav} + P_A\sum_{A} t_{insec} + P_B\sum_{B} t_{insec}<br>$$<br>The intuition for this model is that the probability for a ray to hit $A$ and $B$ is proportional to the suface area of each set. Another way to say that is:<br>$$<br>P_A = \frac{s(A)}{s(A\cup B)}<br>$$<br>By using SAH, we can select our optimal split position by calculating the minimal value of cost function.<br>$$<br>E(cost) = \min(\sum_{i=1}^{n} t_{insec}, t_{trav} + P_A\sum_{A} t_{insec} + P_B\sum_{B} t_{insec})<br>$$<br>If we cannot find a suitable spliting point according to SAH, we can use brute force on this set.</p>
+<h1 id="Surface-Area-Heuristic"><a href="#Surface-Area-Heuristic" class="headerlink" title="Surface Area Heuristic"></a>Surface Area Heuristic</h1><p>Surface Area Heuristic (SAH) is a heuristic algorithm which provides a well-grounded cost model for answering questions like “which of a number of partitions of primitives will lead to a better BVH for ray–primitive intersection tests?,” or “which of a number of possible positions to split space in a spatial subdivision scheme will lead to a better acceleration structure?”</p>
+<p>The difference between good and bad partition can be significant, especially in spatial subdivision data structures. Because the number of references to triangles in a space partition structure may grow exponentially.<br><img src="/images/ExpTriangles1.png" width="50%" /><br><img src="/images/ExpTriangles.png" width="50%" /><br>As shown above, each of the red line represent a partition, each action we are creating a reference to the same triangle on both the left and right child.</p>
+<p>Here is a good partition:<br><img src="/images/Partition.png" width="60%" /><br>Here is an example of a bad partition, because it creates many repeated references:<br><img src="/images/Partition1.png" width="60%" /><br>If we have too many references, it will not only increase the number of nodes and memory usage, but also affect the efficiency of querying.</p>
+<p>For using the SAH method, the computation for the cost model is simple. If we brute force check every triangle in the set $S$, the cost is:<br>$$<br>\sum_{i=1}^{n} t_{insec}<br>$$<br>If we split the set into two subsets $A, B$, then the cost turned into:<br>$$<br>t_{trav} + P_A\sum_{A} t_{insec} + P_B\sum_{B} t_{insec}<br>$$<br>The intuition for this model is that the probability for a ray to hit $A$ and $B$ is proportional to the surface area of each set. Another way to say that is:<br>$$<br>P_A = \frac{s(A)}{s(A\cup B)}<br>$$<br>By using SAH, we can select our optimal split position by calculating the minimal value of cost function.<br>$$<br>E(cost) = \min(\sum_{i=1}^{n} t_{insec}, t_{trav} + P_A\sum_{A} t_{insec} + P_B\sum_{B} t_{insec})<br>$$<br>If we cannot find a suitable spliting point according to SAH, we can use brute force on this set. SAH is actually a type of the Optimal BST problem. If we know some nodes are less likely to be visited, we can increase the cost to reach those nodes. On the other hand, we will spend less cost to visit the nodes that are more likely to be visited.</p>
 <h1 id="Implementation-and-Analysis"><a href="#Implementation-and-Analysis" class="headerlink" title="Implementation and Analysis"></a>Implementation and Analysis</h1><h2 id="Preprocessing-Construction"><a href="#Preprocessing-Construction" class="headerlink" title="Preprocessing (Construction)"></a>Preprocessing (Construction)</h2><p>To construct a BVH, I designed two different methods, they are differed in how to find the optimal split position.</p>
 <ul>
 <li>Approach 1 uses the median on the largest extent as the split position, the time complexity of this method is $\Theta(n\log{n})$.</li>
@@ -328,7 +343,7 @@
 <p>By setting a threshold, our memory usage reduced a lot. Although we get a worse running time, I have to do that because otherwise I would not have enough memory to run the test. That’s why I set 8 as my primary threshold.</p>
 <h1 id="Performance-Test-Result"><a href="#Performance-Test-Result" class="headerlink" title="Performance Test Result"></a>Performance Test Result</h1><p>The source code for this project can be found at <a target="_blank" rel="noopener" href="https://github.com/CXUtk/RayTracerTest">https://github.com/CXUtk/RayTracerTest</a></p>
 <h2 id="Subdivision-Test"><a href="#Subdivision-Test" class="headerlink" title="Subdivision Test"></a>Subdivision Test</h2><p>The first stage of this experiment uses models of a sphere, the difference for each model is their subdivision level. I designed 5 different subdivision levels, the number of triangles range from 8K to 1.3M.</p>
-<h3 id="Heatmap-Test"><a href="#Heatmap-Test" class="headerlink" title="Heatmap Test"></a>Heatmap Test</h3><p>For each of the data structure, I generated their heatmap on the sphere model. The brighter area represent the ray shoot on this direction will spend more time traversing the data structure and do intersection test. The darker area means the cost for doing intersection test on this direction is less.</p>
+<h3 id="Heatmap"><a href="#Heatmap" class="headerlink" title="Heatmap"></a>Heatmap</h3><p>For each of the data structures, I generated their heatmap on the sphere scene. The brighter area represents the ray shoot in this direction will spend more time traversing the data structure. The darker area means the cost of doing an intersection test in this direction is relatively less.</p>
 <img src="/images/BVH_HMAP.png" class="" width="400" title="Heatmap for BVH">
 <img src="/images/BVHSAH_HMAP.png" class="" width="400" title="Heatmap for BVH with SAH">
 <img src="/images/OCT_DYN_HMAP.png" class="" width="400" title="Heatmap for Octree">
@@ -336,8 +351,28 @@
 <img src="/images/Hybrid_HMAP.png" class="" width="400" title="Heatmap for Hybrid Tree">
 
 <h3 id="Performance-Test"><a href="#Performance-Test" class="headerlink" title="Performance Test"></a>Performance Test</h3><img src="/images/BVHSAHTest.png" class="" title="Test Result">
+<p>From the query test result, we can see that the BVH structure’s performance is largly affact by the increase of the subdivision level. In contrast, the spatial division data structure is not so sensitive to the level of subdivision. That is due to BVH usually traverses both the left and right child nodes when there is intersection between the two bounding volumes.</p>
+<p>In terms of space complexity, the space subdivision data structure may generate repeated triangle references and therefore may occupy more space than the object subdivision data strucure.</p>
+<h2 id="Complex-Scene-Test"><a href="#Complex-Scene-Test" class="headerlink" title="Complex Scene Test"></a>Complex Scene Test</h2><p>The subdivision test doesn’t show an advantage of using the SAH method. But when we are in a more complex scene, there are a lot of meshes disjoint from each other and evenly distributed in the space, SAH method is powerful.</p>
+<img src="/images/Complex_Running.png" class="">
+<img src="/images/Complex_Step.png" class="">
+<img src="/images/Complex_Intersection.png" class="" title="Running time Result">
+<p>If we use SAH on the BVH structure, the maximum steps stay the same but the average traversing steps and intersections are decreased by 20%. If we take a look at the heatmap, we will find that SAH subdivision cut off a lot of unnecessary overhead traversing the data structure. </p>
+<img src="/images/BVH_HMAP_INT.png" class="" width="400" title="BVH">
+<img src="/images/BVHSAH_HMAP_INT.png" class="" width="400" title="BVH with SAH">
+<p>KD-Tree can perform bad on some scene that is hard to partition a set of triangles. When it is hard to find a split point, KD tree will create exponentially many extra triangles.</p>
+<img src="/images/Complex_Memory.png" class="" title="Test Result">
+<p>By removing the scene that cost a lot of memory, we can see clearly the memory useage for these data structures.</p>
+<img src="/images/Complex_Memory_R.png" class="" title="Test Result">
+<p>By using the Hybrid method, we are able to reduce the worst case time complexity and memory useage of KD-Tree. This can be seen as an improved structure based on KD-Tree, although in general, it runs a bit slower than KD tree.</p>
+<img src="/images/KD_HMAP_ROOM.png" class="" width="400" title="Heatmap for KDTree">
+<img src="/images/Hybrid_HMAP_ROOM.png" class="" width="400" title="Heatmap for Hybrid tree">
+<p>In the worst case, KD-Tree doesn’t perform well</p>
+<img src="/images/KDKiller.png" class="" width="400" title="Heatmap for KDTree">
+<img src="/images/KDKiller2.png" class="" width="400" title="Heatmap for Hybrid tree">
 
-<h2 id="Complex-Scene-Test"><a href="#Complex-Scene-Test" class="headerlink" title="Complex Scene Test"></a>Complex Scene Test</h2>
+<h1 id="Conclusion"><a href="#Conclusion" class="headerlink" title="Conclusion"></a>Conclusion</h1><p>The ray-triangle intersection detection is a very difficult problem, it is difficult for us to find a perfect solution. But from my experimental results, the KD tree performs very well in most scenes. In large scenes, the KD tree with BVH hybrid method can be used to improve the tolerance of small and dense models. And we must choose a better heuristic method to determine the split point. SAH is a method that works well in practical applications, but it should be noted that it will significantly increase the preprocessing time.</p>
+
     </div>
 
     
